@@ -304,8 +304,7 @@ class CinemaBookingApp:
                     num_tickets = int(num_tickets_input)
                     
                     selected_seats, temp_map = self.cinema.book_tickets(num_tickets)
-                    print("temp_map")
-                    print(temp_map)
+ 
                     booking_id = self.generate_booking_id()
                         
                     print(f"\nSuccessfully reserved {num_tickets} {self.cinema.movie_title} tickets.")
@@ -315,14 +314,10 @@ class CinemaBookingApp:
                     
                     selected_seats,temp_map=self.change_seats(selected_seats,num_tickets, booking_id,temp_map )
 
-                    print("temp_map")
-                    print(temp_map)
-
                     # Confirm booking
                     self.cinema.confirm_booking(selected_seats, booking_id, seating_map=temp_map)
                     print(f"\nBooking id: {booking_id} confirmed.")
                     loop_flag=False
-                    self.cinema.display_seating_map(selected_seats)
 
                 except (ValueError) as e:
                     print("Invalid input. Please enter a number.")
@@ -355,8 +350,20 @@ class CinemaBookingApp:
                     print("Invalid seat selection. Please try again.")                       
 
     def check_bookings(self):
-        print("Please enter interest rules details in <Date> <RuleId> <Rate in %> format")
-        
+        # Check bookings
+        loop_flag=True
+        while loop_flag:
+            print("\nEnter booking id, or enter blank to go back to main menu:")
+            booking_id = input("> ")
+            
+            if not booking_id:
+                loop_flag=False
+            elif booking_id in self.cinema.bookings:
+                print(f"\nBooking id: {booking_id}")
+                print("Selected seats:")
+                self.cinema.display_seating_map(booking_id_to_highlight=booking_id)
+            else:
+                print("Booking not found.")        
 
     def generate_booking_id(self):
         booking_id = f"GIC{self.next_booking_id:04d}"
