@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 from utils import utils
+from validation_error import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -10,10 +11,10 @@ class Cinema:
     def __init__(self, movie_title:str, rows:int, seats_per_row:int):
 
         if rows > 26:
-            raise ValueError("rows cannot be more than 26!")
+            raise ValidationError("rows cannot be more than 26!")
         
         if seats_per_row > 50:
-            raise ValueError("seats_per_row cannot be more than 50!")
+            raise ValidationError("seats_per_row cannot be more than 50!")
 
         self.movie_title=movie_title
         self.rows=rows
@@ -74,20 +75,25 @@ class Cinema:
         for j in range(1, self.seats_per_row + 1):
             print(f"{j:<3}", end="")
         print("\n")
+
     def book_tickets(self, num_tickets):
+                
         available_seats = self.get_available_seats()
-        if num_tickets > available_seats:
-            return None, None
-        
+
+        if num_tickets <= 0:
+            raise ValidationError("Number of tickets cannot be negative. Please enter a positive number of tickets.")
+        elif num_tickets > available_seats:
+            raise ValidationError(f"Sorry, there are only {available_seats} seats available.")
+
         # Generate default seat selection
         selected_seats = []
         temp_map = [row[:] for row in self.seating_map]
         
-        # Start from furthest row (highest row index)
-        for row in range(self.rows - 1, -1, -1):
+        # Start from furthest row from screen (first row index)
+        for row in range(0, self.rows - 1, 1):
             # Calculate middle position to start
             middle = self.seats_per_row // 2 - (num_tickets // 2)
-            if middle < 0:
+            if middle < 0: 
                 middle = 0
             
             consecutive_seats = 0
@@ -124,6 +130,39 @@ class Cinema:
                     temp_map[seat[0]][seat[1]] = 0
                 selected_seats = []
     
-    def confirm_booking(self, selected_seats, booking_id):
+    def confirm_booking(self, selected_seats, booking_id, seating_map):
+            print("seating_map")
+            print(seating_map)
             self.bookings[booking_id] = selected_seats
+            self.seating_map= seating_map
+
+    def update_seat_selection(self, selected_seats, seat_pos, num_tickets):
+        # Parse seat position (e.g. 'B03')
+        row_letter = seat_pos[0].upper()
+        col_number = int(seat_pos[1:]) - 1
+        
+        row_idx = ord(row_letter) - ord('A')
+        
+        if row_idx < 0 or row_idx >= self.rows or col_number < 0 or col_number >= self.seats_per_row:
+            return None, None
+        
+        temp_map = [row[:] for row in self.seating_map]
+        new_selected_seats = []
+        remaining_tickets = num_tickets
+        
+        # Try to allocate seats starting from the specified position
+        for r in range(row_idx, self.rows):
+            for c in range(col_number if r == row_idx else 0, self.seats_per_row):
+                if temp_map[r][c] == 0:
+                    new_selected_seats.append((r, c))
+                    temp_map[r][c] = 2
+                    remaining_tickets -= 1
+                    if remaining_tickets == 0:
+                        return new_selected_seats, temp_map
+        
+        # If we couldn't allocate all tickets, reset
+        if remaining_tickets > 0:
+            return selected_seats, None
+        
+        return new_selected_seats, temp_map
     

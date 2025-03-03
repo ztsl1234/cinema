@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 
 from utils import utils
 from cinema import Cinema
+from validation_error import ValidationError
 
 logger = logging.getLogger(__name__)
 
-"""# GIC Cinemas Booking System
+"""
+# GIC Cinemas Booking System
 
 ## Intro
 
@@ -298,34 +300,36 @@ class CinemaBookingApp:
             if not num_tickets_input:
                 loop_flag=False
             else:            
-                try:
+                try:                    
                     num_tickets = int(num_tickets_input)
-                    available_seats = self.cinema.get_available_seats()
                     
-                    if num_tickets <= 0:
-                        print("Please enter a positive number of tickets.")
-                    elif num_tickets > available_seats:
-                        print(f"Sorry, there are only {available_seats} seats available.")
-                    else:
-                        selected_seats, temp_map = self.cinema.book_tickets(num_tickets)
-                        booking_id = self.generate_booking_id()
+                    selected_seats, temp_map = self.cinema.book_tickets(num_tickets)
+                    print("temp_map")
+                    print(temp_map)
+                    booking_id = self.generate_booking_id()
                         
-                        print(f"\nSuccessfully reserved {num_tickets} {self.cinema.movie_title} tickets.")
-                        print(f"Booking id: {booking_id}")
-                        print("Selected seats:")
-                        
-                        self.cinema.display_seating_map(selected_seats)
-                        
-                        selected_seats=self.change_seats(booking_id)
+                    print(f"\nSuccessfully reserved {num_tickets} {self.cinema.movie_title} tickets.")
+                    print(f"Booking id: {booking_id}")
+                    print("Selected seats:")                    
+                    self.cinema.display_seating_map(selected_seats)
+                    
+                    selected_seats,temp_map=self.change_seats(selected_seats,num_tickets, booking_id,temp_map )
 
-                        # Confirm booking
-                        self.cinema.confirm_booking(selected_seats, booking_id)
-                        print(f"\nBooking id: {booking_id} confirmed.")
+                    print("temp_map")
+                    print(temp_map)
 
-                except ValueError:
-                    print("Invalid input. Please enter a number.????")
+                    # Confirm booking
+                    self.cinema.confirm_booking(selected_seats, booking_id, seating_map=temp_map)
+                    print(f"\nBooking id: {booking_id} confirmed.")
+                    loop_flag=False
+                    self.cinema.display_seating_map(selected_seats)
 
-    def change_seats(self, booking_id):
+                except (ValueError) as e:
+                    print("Invalid input. Please enter a number.")
+                except (ValidationError) as e:
+                    print(f"{str(e)}")                    
+
+    def change_seats(self, selected_seats, num_tickets, booking_id, seating_map) -> list:
         # Allow user to change seat selection
         loop_flag=True
         while loop_flag:
@@ -333,23 +337,22 @@ class CinemaBookingApp:
             new_pos = input("> ")
             
             if not new_pos:
-                loop_flag=False
+                print("accept")
+                return (selected_seats,seating_map)
             else:
+                print("change!!!!")
                 new_selected_seats, new_temp_map = self.cinema.update_seat_selection(selected_seats, new_pos, num_tickets)
             
                 if new_selected_seats:
                     selected_seats = new_selected_seats
-                    temp_map = new_temp_map
+                    seating_map = new_temp_map
                     
-                    print(f"\nBooking id: {booking_id}")
-                    print("Selected seats:")
+                    print("change")
+                    print(f"Booking id: {booking_id}")
+                    print("Selected seats:")                    
                     self.cinema.display_seating_map(selected_seats)
-                    return(selected_seats)
                 else:
-                    print("Invalid seat selection. Please try again.")
-        
-
-                        
+                    print("Invalid seat selection. Please try again.")                       
 
     def check_bookings(self):
         print("Please enter interest rules details in <Date> <RuleId> <Rate in %> format")
