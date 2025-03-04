@@ -83,7 +83,8 @@ class Cinema:
         elif num_tickets > available_seats:
             raise ValidationError(f"Sorry, there are only {available_seats} seats available.")
 
-        selected_seats, temp_map=self.allocate_default_seating(num_tickets)
+        selected_seats, temp_map=self.allocate_seating(num_tickets)
+        
         remaining_tickets = num_tickets - len(selected_seats)
         print(remaining_tickets)
 
@@ -157,38 +158,38 @@ class Cinema:
         row_letter = seat_pos[0].upper()
         col_number = int(seat_pos[1:]) - 1
         
-        row_idx = ord(row_letter) - ord('A')
+        row_number = ord(row_letter) - ord('A')
         
-        if row_idx < 0 or row_idx >= self.rows or col_number < 0 or col_number >= self.seats_per_row:
+        if row_number < 0 or row_number >= self.rows or col_number < 0 or col_number >= self.seats_per_row:
            raise ValidationError("Invalid seat selection. Please try again.")
 
-        # selected_seats, temp_map=self.allocate_seating(num_tickets)
+        selected_seats, temp_map=self.allocate_seating(num_tickets, seat_row=row_number, seat_col=col_number)
 
-        # return selected_seats, temp_map
+        return selected_seats, temp_map
 
-        temp_map = [row[:] for row in self.seating_map]
-        new_selected_seats = []
-        remaining_tickets = num_tickets
+        # temp_map = [row[:] for row in self.seating_map]
+        # new_selected_seats = []
+        # remaining_tickets = num_tickets
 
-        #check if selected seat is available
-        if temp_map[row_idx][col_number] > 0:
-            raise ValidationError("The seat is unavailable. Please re-select.")
+        # #check if selected seat is available
+        # if temp_map[row_number][col_number] > 0:
+        #     raise ValidationError("The seat is unavailable. Please re-select.")
 
-        # Try to allocate seats starting from the specified position
-        for r in range(row_idx, self.rows):
-            for c in range(col_number if r == row_idx else 0, self.seats_per_row):
-                if temp_map[r][c] == 0:
-                    new_selected_seats.append((r, c))
-                    temp_map[r][c] = 2
-                    remaining_tickets -= 1
-                    if remaining_tickets == 0:
-                        return new_selected_seats, temp_map
+        # # Try to allocate seats starting from the specified position
+        # for r in range(row_number, self.rows):
+        #     for c in range(col_number if r == row_number else 0, self.seats_per_row):
+        #         if temp_map[r][c] == 0:
+        #             new_selected_seats.append((r, c))
+        #             temp_map[r][c] = 2
+        #             remaining_tickets -= 1
+        #             if remaining_tickets == 0:
+        #                 return new_selected_seats, temp_map
         
         
-        #still have tickets not allocated after using default seat selection
-        # => go through from row1 again and fill from col1
-        if remaining_tickets > 0:
-            return (self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map))
+        # #still have tickets not allocated after using default seat selection
+        # # => go through from row1 again and fill from col1
+        # if remaining_tickets > 0:
+        #     return (self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map))
     
     def allocate_remaining_seats(self,remaining_tickets,selected_seats, temp_map ):
         """
@@ -221,7 +222,7 @@ class Cinema:
         else:
             return selected_seats,temp_map
         
-    def allocate_default_seating(self,num_tickets):
+    def xxxallocate_default_seating(self,num_tickets):
         """
         
 
@@ -305,17 +306,25 @@ class Cinema:
             print(f"row={row}")
             print(f"temp_map={temp_map}")
 
+            #selected seat
             if seat_col is not None and row==seat_row and seat_col is not None:
+                #check if selected seat is available
+                if temp_map[seat_row][seat_col] > 0:
+                    raise ValidationError("The seat is unavailable. Please re-select.")                
                 start_col=seat_col
-            #if required seats more than 1 row => start from col 1
-            elif (remaining_tickets >= self.seats_per_row) :
-                start_col = 0
-            #if middle seat is taken => start from the available seats to the rt of middle seat
-            # so that group will not be separated
-            elif temp_map[row][middle_pos] > 0:
-                start_col= middle_pos+1
+            #no selected seat
             else:
-                start_col= middle_pos - (remaining_tickets // 2) #select middle seats for the group
+                #if middle seat is taken => start from the available seats to the rt of middle seat
+                # so that group will not be separated
+                if temp_map[row][middle_pos] > 0:
+                    start_col= middle_pos+1
+                else:
+                    #if required seats more than 1 row => start from col 1
+                    if (remaining_tickets >= self.seats_per_row) :
+                        start_col = 0
+                    else:
+                        #select middle seats for the group
+                        start_col= middle_pos - (remaining_tickets // 2) 
  
             for col in range(start_col, self.seats_per_row):
                 print(f"col={col}")
