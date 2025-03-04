@@ -9,6 +9,18 @@ logger = logging.getLogger(__name__)
 class Cinema:
 
     def __init__(self, movie_title:str, rows:int, seats_per_row:int):
+        """
+        Constructor to construct a Cinema object
+
+        Args:
+            movie_title (str): title of the moview
+            rows (int): number of rows
+            seats_per_row (int): number of seats in 1 row
+
+        Raises:
+            ValidationError: rows more than 26
+            ValidationError: seats per row more than 50
+        """
 
         if rows > 26:
             raise ValidationError("rows cannot be more than 26!")
@@ -22,7 +34,13 @@ class Cinema:
         self.seating_map = [[0 for _ in range(seats_per_row)] for _ in range(rows)]   
         self.bookings = {} 
 
-    def get_available_seats(self) -> dict:
+    def get_available_seats(self) -> int:
+        """
+        This will give the number of seats available in the cinema
+
+        Returns:
+            int: number
+        """
         num_seats = 0
         for row in self.seating_map:
             for seat in row:
@@ -30,17 +48,22 @@ class Cinema:
                     num_seats += 1
         return num_seats
     
-    def display_seating_map(self, selected_seats=None, booking_id_to_highlight=None):
+    def display_seating_map(self, selected_seats:list=None, booking_id_to_highlight:str=None):
         """
-        Display the seating map. If selected_seats is provided, they are shown as 'o'.
+        Display the seating map. 
+        
+        If selected_seats is provided, they are shown as 'o'.
         If booking_id_to_highlight is provided, highlight those seats with 'o' and others with '#'.
+
+        Args:
+            selected_seats (list, optional): list of selected seats. Defaults to None.
+            booking_id_to_highlight (str, optional): booking id to highlight on seating map Defaults to None.
         """
+
         print("\n          S C R E E N")
         print("--------------------------------")
         
         temp_map = [row[:] for row in self.seating_map]
-
-        print(temp_map)
         
         if selected_seats:
             for row, col in selected_seats:
@@ -74,7 +97,20 @@ class Cinema:
             print(f"{j:<3}", end="")
         print("\n")
 
-    def book_tickets(self, num_tickets):
+    def book_tickets(self, num_tickets:int) -> tuple:
+        """
+        This function will book the tickets
+
+        Args:
+            num_tickets (int): number of tickets
+
+        Raises:
+            ValidationError: negative number of tickets
+            ValidationError: user selected seat is not available
+
+        Returns:
+            tuple: selected seats, seating map
+        """
                 
         available_seats = self.get_available_seats()
 
@@ -84,76 +120,35 @@ class Cinema:
             raise ValidationError(f"Sorry, there are only {available_seats} seats available.")
 
         selected_seats, temp_map=self.allocate_seating(num_tickets)
-        
-        remaining_tickets = num_tickets - len(selected_seats)
-        print(remaining_tickets)
-
-        # # Generate default seat selection
-        # selected_seats = []
-        # temp_map = [row[:] for row in self.seating_map]
-        # remaining_tickets=num_tickets
-        
-        # consecutive_seats = 0
-        # # Start from furthest row from screen (first row index)
-        # #for row in range(0, self.rows - 1, 1): #???
-        # for row in range(0, self.rows): #???
-        #     print(f"row={row}")
-        #     print(f"temp_map={temp_map}")
-        #     # Calculate middle position to start
-        #     middle = self.seats_per_row // 2 - (remaining_tickets // 2)
-        #     #middle = self.seats_per_row // 2 
-        #     print(f"middle={middle}")
-
-        #     #if start from middle not enough to accomodate all the tickets => start from col 1
-        #     if (remaining_tickets >= self.seats_per_row) :
-        #     # if (remaining_tickets >= self.seats_per_row) or (remaining_tickets > middle):
-        #     # if middle < 0: 
-        #         middle = 0
             
-        #     for col in range(middle, self.seats_per_row):
-        #         print(f"col={col}")
-        #         print(f"temp_map={temp_map}")
-        #         #find empty seats
-        #         if temp_map[row][col] == 0:
-        #             selected_seats.append((row, col))
-        #             temp_map[row][col] = 2
-        #             remaining_tickets -= 1                    
-        #             consecutive_seats += 1
-        #             print(f"consecutive_seats={consecutive_seats}")
-        #             print(f"remaining_tickets={remaining_tickets}")        
-        #             if remaining_tickets == 0:
-        #                 return selected_seats, temp_map
-
-        print("out of all loops!")          
-        #still have tickets not allocated after using default seat selection
-        # => go through from row1 again and fill from col1
-        if remaining_tickets > 0:
-            selected_seats, temp_map =self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map)
-        
         return selected_seats, temp_map
-                          
-        #still have tickets not allocated => go through from row1 again and fill from col1
-        # if remaining_tickets > 0:
-        #     for row in range(0, self.rows):
-        #         print(f"row={row}")
-        #         print(f"temp_map={temp_map}")
-        #         for col in range(0, self.seats_per_row):
-        #             print(f"col={col}")
-        #             print(f"temp_map={temp_map}")
-        #             #find empty seats
-        #             if temp_map[row][col] == 0:
-        #                 selected_seats.append((row, col))
-        #                 temp_map[row][col] = 2
-        #                 remaining_tickets -= 1                    
-        #                 print(f"remaining_tickets={remaining_tickets}")        
-        #                 if remaining_tickets == 0:
-        #                     return selected_seats, temp_map
-        
-    def confirm_booking(self, selected_seats, booking_id, seating_map):
-            self.bookings[booking_id] = selected_seats
-            self.seating_map= seating_map
+                                  
+    def confirm_booking(self, selected_seats:list, booking_id:str, seating_map:list):
+        """_summary_
 
-    def update_seat_selection(self, selected_seats, seat_pos, num_tickets):
+        Args:
+            selected_seats (list): list of selected seats
+            booking_id (str): booking id
+            seating_map (list): map of the seats
+        """            
+        self.bookings[booking_id] = selected_seats
+        self.seating_map= seating_map
+
+    def update_seat_selection(self, selected_seats:list, seat_pos:str, num_tickets:int) -> tuple:
+        """
+        This function will update the seat selection with the user selected seats
+
+        Args:
+            selected_seats (list): list of selected seats
+            seat_pos (str): posiiton of selected seats
+            num_tickets (int): number of tickets
+
+        Raises:
+            ValidationError: invalid seat selection
+
+        Returns:
+            tuple: selected seats, seating map
+        """
         # Parse seat position (e.g. 'B03')
         row_letter = seat_pos[0].upper()
         col_number = int(seat_pos[1:]) - 1
@@ -166,32 +161,8 @@ class Cinema:
         selected_seats, temp_map=self.allocate_seating(num_tickets, seat_row=row_number, seat_col=col_number)
 
         return selected_seats, temp_map
-
-        # temp_map = [row[:] for row in self.seating_map]
-        # new_selected_seats = []
-        # remaining_tickets = num_tickets
-
-        # #check if selected seat is available
-        # if temp_map[row_number][col_number] > 0:
-        #     raise ValidationError("The seat is unavailable. Please re-select.")
-
-        # # Try to allocate seats starting from the specified position
-        # for r in range(row_number, self.rows):
-        #     for c in range(col_number if r == row_number else 0, self.seats_per_row):
-        #         if temp_map[r][c] == 0:
-        #             new_selected_seats.append((r, c))
-        #             temp_map[r][c] = 2
-        #             remaining_tickets -= 1
-        #             if remaining_tickets == 0:
-        #                 return new_selected_seats, temp_map
-        
-        
-        # #still have tickets not allocated after using default seat selection
-        # # => go through from row1 again and fill from col1
-        # if remaining_tickets > 0:
-        #     return (self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map))
     
-    def allocate_remaining_seats(self,remaining_tickets,selected_seats, temp_map ):
+    def allocate_remaining_seats(self,remaining_tickets:int,selected_seats:list, temp_map:list ) -> tuple:
         """
         allocate remaining seats starting from row 1 col 1
 
@@ -201,112 +172,45 @@ class Cinema:
             temp_map (_type_): _description_
 
         Returns:
-            _type_: _description_
+            tuple: selected seats, seating map
         """
-    
         if remaining_tickets > 0:
             for row in range(0, self.rows):
-                print(f"row={row}")
-                print(f"temp_map={temp_map}")
                 for col in range(0, self.seats_per_row):
-                    print(f"col={col}")
-                    print(f"temp_map={temp_map}")
                     #find empty seats
                     if temp_map[row][col] == 0:
                         selected_seats.append((row, col))
                         temp_map[row][col] = 2
                         remaining_tickets -= 1                    
-                        print(f"remaining_tickets={remaining_tickets}")        
                         if remaining_tickets == 0:
                             return selected_seats, temp_map
         else:
             return selected_seats,temp_map
         
-    def xxxallocate_default_seating(self,num_tickets):
+    def allocate_seating(self,num_tickets:int, seat_row:int=None, seat_col:int=None) -> tuple:
         """
-        
+        This function allocates the default seating if seat_row and seat_col 
+        are not passed
 
         Args:
-            num_tickets (_type_): _description_
+            num_tickets (int): number of tickets
+            seat_row (int, optional): selected seat row. Defaults to None.
+            seat_col (int, optional): selected seat column. Defaults to None.
+
+        Raises:
+            ValidationError: unavailable 
 
         Returns:
-            _type_: _description_
+            tuple: selected seats (list) , seating map (list)
         """
-        # Generate default seat selection
         selected_seats = []
         temp_map = [row[:] for row in self.seating_map]
         remaining_tickets=num_tickets
         middle_pos = self.seats_per_row // 2 
-        print(f"middle_pos={middle_pos}")        
-        
-        consecutive_seats = 0
-        # Start from furthest row from screen (first row index)
-        #for row in range(0, self.rows - 1, 1): #???
-        for row in range(0, self.rows): #???
-            print(f"row={row}")
-            print(f"temp_map={temp_map}")
 
-            #if required seats more than 1 row => start from col 1
-            if (remaining_tickets >= self.seats_per_row) :
-                start_col = 0
-
-            # Calculate middle position to start
-            # middle = self.seats_per_row // 2 - (remaining_tickets // 2)
-
-            #if middle seat is taken => start from the available seats to the rt of middle seat
-            # so that group will not be separated
-            if temp_map[row][middle_pos] > 0:
-                start_col= middle_pos+1
-            else:
-                start_col= middle_pos - (remaining_tickets // 2) #select middle seats for the group
-            
-            for col in range(start_col, self.seats_per_row):
-                print(f"col={col}")
-                print(f"temp_map={temp_map}")
-                #find empty seats
-                if temp_map[row][col] == 0:
-                    selected_seats.append((row, col))
-                    temp_map[row][col] = 2
-                    remaining_tickets -= 1                    
-                    consecutive_seats += 1
-                    print(f"consecutive_seats={consecutive_seats}")
-                    print(f"remaining_tickets={remaining_tickets}")        
-                    if remaining_tickets == 0:
-                        return selected_seats, temp_map
-
-        print("out of all loops!")          
-        #still have tickets not allocated after using default seat selection
-        # => go through from row1 again and fill from col1
-        if remaining_tickets > 0:
-            return (self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map))
-        
-
-    def allocate_seating(self,num_tickets, seat_row=None, seat_col=None):
-        """
-        
-
-        Args:
-            num_tickets (_type_): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        # Generate default seat selection
-        selected_seats = []
-        temp_map = [row[:] for row in self.seating_map]
-        remaining_tickets=num_tickets
-        middle_pos = self.seats_per_row // 2 
-        print(f"middle_pos={middle_pos}")        
-        
-
-        consecutive_seats = 0
         # Start from furthest row from screen (first row index) if not given any row
-        #for row in range(0, lf.rows - 1, 1): #???
-        for row in range(0 if seat_row is None else seat_row, self.rows): #???
-            print(f"row={row}")
-            print(f"temp_map={temp_map}")
-
-            #selected seat
+        for row in range(0 if seat_row is None else seat_row, self.rows): 
+            #selected seat given
             if seat_col is not None and row==seat_row and seat_col is not None:
                 #check if selected seat is available
                 if temp_map[seat_row][seat_col] > 0:
@@ -327,22 +231,16 @@ class Cinema:
                         start_col= middle_pos - (remaining_tickets // 2) 
  
             for col in range(start_col, self.seats_per_row):
-                print(f"col={col}")
-                print(f"temp_map={temp_map}")
                 #find empty seats
                 if temp_map[row][col] == 0:
                     selected_seats.append((row, col))
                     temp_map[row][col] = 2
                     remaining_tickets -= 1                    
-                    consecutive_seats += 1
-                    print(f"consecutive_seats={consecutive_seats}")
-                    print(f"remaining_tickets={remaining_tickets}")        
+    
                     if remaining_tickets == 0:
                         return selected_seats, temp_map
-
-        print("out of all loops!")          
-        #still have tickets not allocated after using default seat selection
-        # => go through from row1 again and fill from col1
+       
+        #still have tickets not allocated after using default seat selection or the selected seats
+        # => go through from row1 col1 again
         if remaining_tickets > 0:
             return (self.allocate_remaining_seats(remaining_tickets,selected_seats, temp_map))
-        

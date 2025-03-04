@@ -10,26 +10,6 @@ logger = logging.getLogger(__name__)
 """
 # GIC Cinemas Booking System
 
-## Intro
-
-You are building a part of cinema booking management system. You must build a prototype that takes in one movie title and seating map input, before allowing tickets to be booked.
-
-## Application Start
-
-When the application starts, it should ask user to input the movie title and seating map in [Title] [Row] [SeatsPerRow] format. Maximum number of rows is 26, and maximum number of seats per row is 50. Upon entering the required input, the main menu should be shown.
-
-```
-Please define movie title and seating map in [Title] [Row] [SeatsPerRow] format:
-> Inception 8 10
-
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (80 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
->
-```
-
 ## Ticket Booking
 
 When user selects [1], the booking "workflow" should start. User needs to input the desired number of tickets they want to book. If there are not enough seats available, user should be allowed to try again.
@@ -48,202 +28,13 @@ User can choose another seating position by specifying the starting position of 
 - When there is not enough seats available, it should overflow to the next row closer to the screen.
 - Seat allocation for overflow follows the rules for default seat choice.
 
-The following example demonstrates the ticket booking flow:
-
-```
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (80 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
-> 1
-
-Enter number of tickets to book, or enter blank to go back to main menu:
-> 4
-
-Successfully reserved 4 Inception tickets.
-Booking id: GIC0001
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  .  .  .  .  .  .  .  .  .
-B .  .  .  .  .  .  .  .  .  .
-A .  .  .  o  o  o  o  .  .  .
-  1  2  3  4  5  6  7  8  9  10
-
-Enter blank to accept seat choice, or enter new seating position:
-> B03
-
-Booking id: GIC0001
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  .  .  .  .  .  .  .  .  .
-B .  .  o  o  o  o  .  .  .  .
-A .  .  .  .  .  .  .  .  .  .
-  1  2  3  4  5  6  7  8  9  10
-
-Enter blank to accept seat choice, or enter new seating position
->
-
-Booking id: GIC0001 confirmed.
-
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (76 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
-> 1
-
-Enter number of tickets to book, or enter blank to go back to main menu:
-> 77
-
-Sorry, there are only 76 seats available.
-
-Enter number of tickets to book, or enter blank to go back to main menu:
-> 12
-
-Successfully reserved 12 Inception tickets.
-Booking id: GIC0002
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  .  .  .  .  .  .  .  .  .
-B .  .  #  #  #  #  o  o  .  .
-A o  o  o  o  o  o  o  o  o  o
-  1  2  3  4  5  6  7  8  9  10
-
-Enter blank to accept seat choice, or enter new seating position
-> B05
-
-Booking id: GIC0002
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  o  o  o  o  o  o  o  o  .
-B .  .  #  #  #  #  o  o  o  o
-A .  .  .  .  .  .  .  .  .  .
-  1  2  3  4  5  6  7  8  9  10
-
-Enter blank to accept seat choice, or enter new seating position
->
-
-Booking id: GIC0002 confirmed.
-
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (64 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
->
-
-```
-
-## Check bookings
-
-When user selects [2], they can enter their booking id to see the selected seats in the seating map.
-
-```
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (64 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
-> 2
-
-Enter booking id, or enter blank to go back to main menu:
-> GIC0001
-
-Booking id: GIC0001
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  #  #  #  #  #  #  #  #  .
-B .  .  o  o  o  o  #  #  #  #
-A .  .  .  .  .  .  .  .  .  .
-  1  2  3  4  5  6  7  8  9  10
-
-Enter booking id, or enter blank to go back to main menu:
-> GIC0002
-
-Booking id: GIC0002
-Selected seats:
-
-          S C R E E N
---------------------------------
-H .  .  .  .  .  .  .  .  .  .
-G .  .  .  .  .  .  .  .  .  .
-F .  .  .  .  .  .  .  .  .  .
-E .  .  .  .  .  .  .  .  .  .
-D .  .  .  .  .  .  .  .  .  .
-C .  o  o  o  o  o  o  o  o  .
-B .  .  #  #  #  #  o  o  o  o
-A .  .  .  .  .  .  .  .  .  .
-  1  2  3  4  5  6  7  8  9  10
-
-Enter booking id, or enter blank to go back to main menu:
->
-
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (64 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
->
-
-```
-
-## Exit
-
-User can exit the application by choosing option [3]. A thank you message should be displayed.
-
-```
-Welcome to GIC Cinemas
-[1] Book tickets for Inception (64 seats available)
-[2] Check bookings
-[3] Exit
-Please enter your choice:
-> 3
-
-Thank you for using GIC Cinemas system. Bye!
-```
-
 """
 class CinemaBookingApp:
     def __init__(self):
         self.next_booking_id = 1
 
     def run(self):
+
         #Setup cinema
         print("Please define movie title and seating map in [Title] [Row] [SeatsPerRow] format:")
 
@@ -291,7 +82,10 @@ class CinemaBookingApp:
                 print("Invalid choice. Please try again.")
 
     def booking_tickets(self):
-        # Book tickets
+        """
+        This function will handle the booking of tickets in the cinema
+        """
+        
         loop_flag=True
         while loop_flag:
             print("\nEnter number of tickets to book, or enter blank to go back to main menu:")
@@ -324,8 +118,20 @@ class CinemaBookingApp:
                 except (ValidationError) as e:
                     print(f"{str(e)}")                    
 
-    def change_seats(self, selected_seats, num_tickets, booking_id, seating_map) -> list:
-        # Allow user to change seat selection
+    def change_seats(self, selected_seats:list, num_tickets:int, booking_id:str, seating_map:list) -> tuple:
+        """
+        This function allow user to change the seat selection
+
+        Args:
+            selected_seats (list): list of coordinates of the seats selected
+            num_tickets (int): number of tickets
+            booking_id (str): booking id
+            seating_map (list): list of seats in cinema
+
+        Returns:
+            tuple: selected seats (list), map containing the selected seats
+        """
+
         loop_flag=True
         while loop_flag:
             print("Enter blank to accept seat selection, or enter new seating position:")
@@ -350,7 +156,10 @@ class CinemaBookingApp:
                     print(f"{str(e)}\n")                      
 
     def check_bookings(self):
-        # Check bookings
+        """
+        This function allows user to check on the bookings that they had made.
+        """
+        
         loop_flag=True
         while loop_flag:
             print("\nEnter booking id, or enter blank to go back to main menu:")
@@ -366,6 +175,12 @@ class CinemaBookingApp:
                 print("Booking not found.")        
 
     def generate_booking_id(self):
+        """
+        This function retrieve a new booking id and include the booking counter by 1
+
+        Returns:
+            _type_: _description_
+        """
         booking_id = f"GIC{self.next_booking_id:04d}"
         self.next_booking_id += 1
         return booking_id
