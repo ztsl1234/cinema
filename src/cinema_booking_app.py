@@ -332,22 +332,22 @@ class CinemaBookingApp:
             new_pos = input("> ")
             
             if not new_pos:
-                print("accept")
                 return (selected_seats,seating_map)
             else:
-                print("change!!!!")
-                new_selected_seats, new_temp_map = self.cinema.update_seat_selection(selected_seats, new_pos, num_tickets)
-            
-                if new_selected_seats:
-                    selected_seats = new_selected_seats
-                    seating_map = new_temp_map
-                    
-                    print("change")
-                    print(f"Booking id: {booking_id}")
-                    print("Selected seats:")                    
-                    self.cinema.display_seating_map(selected_seats)
-                else:
-                    print("Invalid seat selection. Please try again.")                       
+                try:
+                    new_selected_seats, new_temp_map = self.cinema.update_seat_selection(selected_seats, new_pos, num_tickets)
+                
+                    if new_selected_seats:
+                        selected_seats = new_selected_seats
+                        seating_map = new_temp_map
+                        
+                        print("change")
+                        print(f"Booking id: {booking_id}")
+                        print("Selected seats:")                    
+                        self.cinema.display_seating_map(selected_seats)
+                
+                except (ValidationError) as e:
+                    print(f"{str(e)}\n")                      
 
     def check_bookings(self):
         # Check bookings
