@@ -1,5 +1,4 @@
-# bankapp
-Console Banking App
+# Cinemas Booking System
 
 To run the program:
 
